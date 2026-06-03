@@ -4,7 +4,6 @@ import re
 import os
 import html
 import pandas as pd
-from io import BytesIO
 
 # ---------- Cấu hình ----------
 KEYWORD_FILE = "keywords.json"
@@ -50,7 +49,7 @@ if not any(st.session_state.keywords.values()):
 # ---------- Giao diện chính ----------
 st.title("Chèn Link Tự Động - TGDĐ / ĐMX / TopZone")
 
-# Khu vực 1: Quản lý từ khóa (Sidebar hoặc Top)
+# Khu vực 1: Quản lý từ khóa
 web_var = st.selectbox("Chọn Web:", WEB_OPTIONS)
 
 st.divider()
@@ -95,7 +94,6 @@ with col1:
     # Bảng quản lý từ khóa hiện tại
     st.write(f"**Danh sách từ khóa hiện tại cho {web_var} (Tick để chọn dùng)**")
     
-    # Chuyển đổi dict sang dataframe để dùng st.data_editor (quản lý tick box dễ hơn)
     kw_dict = st.session_state.keywords[web_var]
     if kw_dict:
         df_kw = pd.DataFrame([
@@ -189,13 +187,14 @@ if st.button("Tạo HTML", type="primary", use_container_width=True):
 
         # --- Chèn từ khóa tự nhận diện thông minh ---
         anchors_map = {}
-        anchor_counter = 0
+        
+        # SỬA LỖI NONLOCAL TẠI ĐÂY BẰNG CÁCH DÙNG LIST
+        anchor_counter = [0] 
 
         def new_anchor_token(anchor_html):
-            nonlocal anchor_counter
-            token = f"[[ANCHOR_{anchor_counter}]]"
+            token = f"[[ANCHOR_{anchor_counter[0]}]]"
             anchors_map[token] = anchor_html
-            anchor_counter += 1
+            anchor_counter[0] += 1
             return token
 
         # Sắp xếp keyword theo độ dài giảm dần
